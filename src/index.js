@@ -1,50 +1,41 @@
-import axios from "axios";
 import SlimSelect from "slim-select";
+
 import { fetchBreeds, fetchCatByBreed } from "./cat-api";
-
-API_KEY =
-  "live_WP3BmDA2PiOwuiojREydM3EuMwusUybL9hRfLASvpkrdKBuhvHIIQ3GLffjrDyt9";
-
-// axios.defaults.headers.common["x-api-key"] = `${API_KEY}`;
-
-// new SlimSelect({
-//   //   select: "#single",
-//   select: document.querySelector("#selectElement"),
-// });
-
-// let el = document.querySelector("#selectElement");
-
 const select = document.querySelector("#selectElement");
-// select.slim.open(); // Or any other options/methods
-fetchBreeds();
+const infoBreed = document.querySelector(".cat-info");
 
-// const fetchCatByBreed = (breedId) => {
-//   fetch(`https://api.thecatapi.com/v1/images/search?breed_ids=${breedId}`).then(
-//     (response) => response.json()
-//   );
-// };
+fetchBreeds();
 
 function addSelectOptions(arr) {
   arr.then((data) => select.insertAdjacentHTML("beforeend", addOption(data)));
 }
 addSelectOptions(fetchBreeds());
-
+// new SlimSelect({
+//   select: "#selectElement",
+// });
 function addOption(arr) {
+  //   console.log(arr);
+
   return arr
-    .map(({ id, name }) => `<option value="${id}" ">${name}</option>`)
+    .map(
+      ({ name, reference_image_id }) =>
+        `<option value="${reference_image_id}" >${name}</option>`
+    )
     .join("");
 }
 select.addEventListener("change", onLoad);
 
 function onLoad() {
-  console.log(select.value);
-  console.log(fetchCatByBreed(select.value));
+  fetchCatByBreed(select.value)
+    .then((data) => (infoBreed.innerHTML = markupInfoThumb(data)))
+    .catch((error) => console.log("error", error));
 }
 
-// description,
-//       id,
-//       name,
-//       origin,
-//       reference_image_id,
-//       vetstreet_url,
-//       wikipedia_url,
+function markupInfoThumb({ breeds, url }) {
+  console.log(breeds[0].name);
+
+  return `  <img src="${url}" width='500px' alt="${breeds[0].alt_names}" />
+      <h1>${breeds[0].name}</h1>
+      <p>${breeds[0].description}</p>
+      <p>${breeds[0].temperament}</p>`;
+}
